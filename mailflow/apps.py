@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class ReviewsRatingsConfig(AppConfig):
+class MailflowConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'reviews_ratings'
+    name = 'mailflow'
