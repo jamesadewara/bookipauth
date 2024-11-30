@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import Book
-from ..accounts.utils import EncryptionHelper
+from accounts.utils import EncryptionHelper
 
 class BookSerializer(serializers.ModelSerializer):
     encrypted_id = serializers.SerializerMethodField()  # This will hold the encrypted ID when sending data

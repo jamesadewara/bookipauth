@@ -1,7 +1,7 @@
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.db import models
-from bookip.accounts.backends import MainUserManager
-from bookip.accounts.utils import user_profile_directory_path
+from .backends import MainUserManager
+from .utils import user_profile_directory_path
 from enum import Enum
 
 class UserRoles(Enum):
@@ -12,8 +12,9 @@ class UserRoles(Enum):
 
 class MainUser(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
-    first_name = models.CharField(max_length=50, unique=True)
-    last_name = models.CharField(max_length=50, unique=True)
+    username = models.CharField(max_length=50)
+    first_name = models.CharField(max_length=50)
+    last_name = models.CharField(max_length=50)
     role = models.CharField(
         max_length=10,
         choices=[(role.value, role.name) for role in UserRoles],
@@ -28,10 +29,7 @@ class MainUser(AbstractBaseUser, PermissionsMixin):
     objects = MainUserManager()
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['email', 'role']
+    REQUIRED_FIELDS = ['username', 'first_name', 'role']
 
     def __str__(self):
         return self.email
-
-    def __str__(self):
-        return self.email or self.username

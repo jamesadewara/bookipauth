@@ -13,7 +13,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 from decouple import config
 from .juzzmin import JAZZMIN_SETTINGS as JAZZMIN_CONF
-from os import os_path
+from os import path as os_path
 from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -31,7 +31,7 @@ ENCRYPTION_KEY = config('ENCRYPTION_KEY', default='unsafe-secret-key')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 # Application definition
 
@@ -45,17 +45,19 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'allauth',
     'allauth.account',
+    'allauth.socialaccount',
     'dj_rest_auth',
     'rest_framework',
     'rest_framework.authtoken',
     'drf_yasg',
-    "AccountsConfig.apps.accounts",
-    "BooksConfig.apps.books",
-    "QueryConfig.apps.query",
+    "accounts.apps.AccountsConfig",
+    "books.apps.BooksConfig",
+    "query.apps.QueryConfig",
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -98,7 +100,6 @@ DATABASES = {
         'PORT': config('DATABASE_PORT', default='5432'),
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
