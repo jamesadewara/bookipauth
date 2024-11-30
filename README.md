@@ -2,124 +2,100 @@
 
 ## Overview
 
-The Bookstore API is designed to manage a platform for buying and selling books, with features including user authentication, order management, inventory, payments, reviews, and recommendations. It allows buyers and sellers to interact within a digital bookstore ecosystem.
+The **Bookstore API** is designed to manage a platform for buying and selling books. It offers features including user authentication, order management, inventory control, payments, reviews, and recommendations. The API facilitates interactions between buyers and sellers within a digital bookstore ecosystem.
 
 ## Technologies Used
 
 - **Django**: The primary web framework for the backend.
-- **Django Rest Framework (DRF)**: Used for creating RESTful APIs.
+- **Django Rest Framework (DRF)**: Used for building RESTful APIs.
 - **dj-rest-auth**: For user authentication and account management.
-- **django-allauth**: Provides authentication support including social login.
+- **django-allauth**: Provides support for social logins and authentication.
 - **drf-yasg**: For generating Swagger UI for API documentation.
-- **Stripe**: Integrated for payment processing.
-- **Shippo**: Integrated for shipping and tracking orders.
-- **SendGrid**: Used for email marketing and notifications.
+- **PostgreSQL**: The database used to store data.
+- **django-cors-headers**: A Django app for handling Cross-Origin Resource Sharing (CORS), which is essential for allowing or restricting requests from other domains to your backend. It is particularly useful when your frontend is hosted on a different domain or port than the backend.
+
+**Note:**
+*When DEBUG is False, you should never be using HTTP connections without proper SSL configurations to ensure sensitive data, including user credentials, are securely transmitted.*
+
 
 ## Models & API Endpoints
 
-### 1. **User Authentication and Account Management API**  
-**API Endpoint**: `/users`  
-- Fields: `user_id`, `email`, `password`, `first_name`, `last_name`, `role`, `created_at`, `last_login`.
+### Base URL
+*localhost:8000/*
 
-### 2. **Book Data API**  
-**API Endpoint**: `/books`  
-- Fields: `id`, `title`, `author`, `publisher`, `published_date`, `description`, `categories`, `isbn`, `page_count`, `image_links`, `language`, `rating`.
+The base URL of the API can be replaced with the actual server URL.  
+For example, in a local development setup, the base URL could be:
 
-### 3. **Search API**  
-**API Endpoint**: `/search`  
-- Fields: `query`, `results`, `filters`, `sort`, `page`.
+---
 
-### 4. **Order Management API**  
-**API Endpoint**: `/orders`  
-- Fields: `order_id`, `customer_id`, `books`, `total_price`, `status`, `shipping_address`, `payment_status`, `order_date`.
+### API Documentation
+To access the API documentation, visit the following endpoint:
+***BASE_URL**/apidoc*
 
-### 5. **Seller API**  
-**API Endpoint**: `/sellers`  
-- Fields: `seller_id`, `user_id`, `store_name`, `store_description`, `store_logo`, `rating`, `created_at`.
+---
 
-### 6. **Product Listing API**  
-**API Endpoint**: `/sellers/{seller_id}/products`  
-- Fields: `product_id`, `book_id`, `seller_id`, `price`, `quantity_available`, `shipping_details`, `created_at`.
+### API Testing
+To test the API, visit the following endpoint:
 
-### 7. **Seller Dashboard API**  
-**API Endpoint**: `/sellers/{seller_id}/dashboard`  
-- Fields: `total_sales`, `total_orders`, `total_books_sold`, `average_rating`, `pending_orders`, `total_revenue`.
+***BASE_URL**/apitest*
 
-### 8. **Payment API**  
-**API Endpoint**: `/payments`  
-- Fields: `payment_intent_id`, `amount`, `currency`, `status`, `customer_id`, `payment_method`, `receipt_url`, `created_at`, `description`.
+---
 
-### 9. **Review and Ratings API**  
-**API Endpoint**: `/reviews`  
-- Fields: `review_id`, `user_id`, `book_id`, `rating`, `review_text`, `created_at`, `helpful_votes`.
+### Models
 
-### 10. **Inventory Management API**  
-**API Endpoint**: `/inventory`  
-- Fields: `book_id`, `stock_quantity`, `book_price`, `last_updated`, `warehouse_location`.
+- **User**: Represents the registered user (both buyers and sellers).
+- **Book**: Represents books available for sale or purchase.
+- **Order**: Represents an order made by a buyer.
+- **Payment**: Represents the payment details for an order.
+- **Review**: Represents reviews for books made by buyers.
+- **Seller**: Represents sellers who own books listed on the platform.
+- **Shipping**: Represents the shipping information related to an order.
+- **Tax**: Represents the tax information for an order.
+- **Inventory**: Represents the stock of books in the warehouse.
+- **BookCategory**: Represents the categories for classifying books.
 
-### 11. **Shipping API**  
-**API Endpoint**: `/shipping`  
-- Fields: `order_id`, `shipping_address`, `carrier`, `tracking_number`, `shipping_date`, `estimated_delivery_date`, `shipping_cost`.
+### API Endpoints (Sample)
 
-### 12. **Tax Calculation API**  
-**API Endpoint**: `/taxes`  
-- Fields: `order_id`, `tax_amount`, `tax_rate`, `shipping_address`, `created_at`.
+- **POST /api/register/**: Register a new user.
+- **POST /api/login/**: Login and receive a token.
+- **GET /api/books/**: Get a list of books.
+- **GET /api/books/{id}/**: Get details for a specific book.
+- **POST /api/orders/**: Create a new order.
+- **GET /api/orders/{id}/**: Get details of a specific order.
+- **POST /api/reviews/**: Create a new review for a book.
 
-### 13. **Recommendation API**  
-**API Endpoint**: `/recommendations`  
-- Fields: `user_id`, `book_recommendations`, `category`, `timestamp`.
+## Authentication
 
-### 14. **Buyer API (Customer Account Management)**  
-**API Endpoint**: `/buyers`  
-- Fields: `buyer_id`, `user_id`, `first_name`, `last_name`, `email`, `created_at`, `last_login`.
+- The API uses **JWT (JSON Web Tokens)** for authentication. After registering and logging in, you will receive an authentication token that should be included in the headers of each request.
+- **Example Header**:  
+  `Authorization: Bearer your_token_here`
 
-### 15. **Buyer Dashboard API**  
-**API Endpoint**: `/buyers/{buyer_id}/dashboard`  
-- Fields: `total_spent`, `total_orders`, `books_purchased`, `average_rating`, `wishlist`.
+---
 
-### 16. **Email Marketing API**  
-**API Endpoint**: `/emails`  
-- Fields: `email_id`, `recipient_email`, `subject`, `body`, `status`, `sent_at`, `template`.
+## Setup Instructions
 
-## Setup and Installation
-
-1. **Clone the Repository:**
-    ```bash
-    git clone <repository-url>
-    cd <project-folder>
+1. **Clone the Repository**
+   ```bash
+   git clone https://github.com/yourusername/bookstore-api.git
+   cd bookstore-api
+2. **Create a Virtual Environment**
+    ```python3 -m venv venv
+    source venv/bin/activate  
+    # On Windows use `venv\Scripts\activate`
+3. **Install Dependencies**
     ```
-
-2. **Install Dependencies:**
-    Make sure you have Python 3.8+ and install the required packages:
-    ```bash
     pip install -r requirements.txt
+4. **Set Up the Database**
+    - Ensure that PostgreSQL is installed and running.
+    - Upload the bookdb file into your pgadmin
+5. **Run Migrations**
     ```
-
-3. **Run Migrations:**
-    Apply database migrations:
-    ```bash
+    python manage.py makeigrations
     python manage.py migrate
+6. **Create a Superuser (optional)**
     ```
-
-4. **Create a Superuser (for Admin Access):**
-    ```bash
     python manage.py createsuperuser
+7. **Run the Server**
     ```
-
-5. **Run the Development Server:**
-    ```bash
     python manage.py runserver
-    ```
 
-6. **Access API Documentation:**
-    The Swagger UI for the API is available at `/swagger/`.
-
-## Endpoints Authentication
-
-- **Login**: Use `/users/login/` endpoint to authenticate and retrieve a token.
-- **Signup**: Use `/users/signup/` to register a new user.
-- **Access Protected Resources**: Use the Bearer token for all authenticated requests.
-
-## Testing the API
-
-You can use tools like **Postman** or **Swagger UI** (automatically generated via `drf-yasg`) to interact with the API endpoints.

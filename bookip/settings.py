@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'corsheaders',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
@@ -51,7 +52,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'drf_yasg',
     "accounts.apps.AccountsConfig",
-    "books.apps.BooksConfig",
+    "eccomerce.apps.EccomerceConfig",
     "query.apps.QueryConfig",
 ]
 
@@ -59,6 +60,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'allauth.account.middleware.AccountMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -98,6 +100,7 @@ DATABASES = {
         'PASSWORD': config('DATABASE_PASSWORD'),
         'HOST': config('DATABASE_HOST', default='localhost'),
         'PORT': config('DATABASE_PORT', default='5432'),
+        'CONN_MAX_AGE': 600,
     }
 }
 
@@ -188,3 +191,51 @@ DJ_REST_AUTH = {
 AUTH_USER_MODEL = 'accounts.MainUser'
 
 DJ_REST_AUTH_REGISTER_SERIALIZER = 'accounts.serializers.MainRegisterSerializer'
+
+if DEBUG != True:
+    SECURE_HSTS_SECONDS = config('SECURE_HSTS_SECONDS', cast=int, default=31536000)  # 1 year in seconds
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = config('SECURE_HSTS_INCLUDE_SUBDOMAINS', cast=bool, default=True)
+    SECURE_HSTS_PRELOAD = config('SECURE_HSTS_PRELOAD', cast=bool, default=True)
+
+    # Enforce HTTPS through the website
+    SECURE_SSL_REDIRECT = config('SECURE_SSL_REDIRECT', cast=bool, default=False)
+
+    # When in production, use Secure Cookies (ensure HTTPS)
+    SESSION_COOKIE_SECURE = config('SESSION_COOKIE_SECURE', cast=bool, default=True)
+    CSRF_COOKIE_SECURE = config('CSRF_COOKIE_SECURE', cast=bool, default=True)
+
+    # Disable content sniffing and force content types to be correct
+    SECURE_CONTENT_TYPE_NOSNIFF = config('SECURE_CONTENT_TYPE_NOSNIFF', cast=bool, default=True)
+
+    # Use the X-Content-Type-Options header for security
+    SECURE_BROWSER_XSS_FILTER = config('SECURE_BROWSER_XSS_FILTER', cast=bool, default=True)
+
+    # Only allow secure (HTTPS) cookies
+    SECURE_COOKIE_HTTPONLY = config('SECURE_COOKIE_HTTPONLY', cast=bool, default=True)
+
+# CROSS ORIGIN
+CORS_ALLOW_ALL_ORIGINS = config('CORS_ALLOW_ALL_ORIGINS', cast=bool, default=False)
+
+# Allow Specific Origins
+# CORS_ALLOWED_ORIGINS = [
+#     "https://example.com",
+#     "https://anotherdomain.com",
+# ]
+
+# Allow Credentials
+CORS_ALLOW_CREDENTIALS = config('CORS_ALLOW_CREDENTIALS', cast=bool, default=False)
+
+# Allow Specific HTTP Methods
+# CORS_ALLOW_METHODS = [
+#     "GET",
+#     "POST",
+#     "PUT",
+#     "DELETE",
+# ]
+
+# Allow Specific Header
+# CORS_ALLOW_HEADERS = [
+#     "content-type",
+#     "authorization",
+#     "x-custom-header",
+# ]

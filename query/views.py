@@ -4,8 +4,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
-from books.models import Book
-from books.serializers import BookSerializer
+from eccomerce.models import Book
+from eccomerce.serializers import BookSerializer
 
 class BookSearchView(APIView):
     def get(self, request, *args, **kwargs):
