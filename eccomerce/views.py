@@ -8,12 +8,17 @@ from .serializers import (
     SellerDashboardSerializer, PaymentSerializer, InventorySerializer, ReviewSerializer,
     ShippingSerializer, TaxSerializer
 )
+from django.views.decorators.cache import cache_page
+from django.utils.decorators import method_decorator
 
 # Book Views
 class BookListCreateView(generics.ListCreateAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
 
+    @method_decorator(cache_page(60 * 15))  # Cache for 15 minutes
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
 
 class BookRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Book.objects.all()
@@ -26,6 +31,9 @@ class BookCategoryListCreateView(generics.ListCreateAPIView):
     queryset = BookCategory.objects.all()
     serializer_class = BookCategorySerializer
 
+    @method_decorator(cache_page(60 * 15))  # Cache for 15 minutes
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
 
 class BookCategoryRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = BookCategory.objects.all()
@@ -38,6 +46,9 @@ class OrderListCreateView(generics.ListCreateAPIView):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
 
+    @method_decorator(cache_page(60 * 15))  # Cache for 15 minutes
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
 
 class OrderRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Order.objects.all()
@@ -50,6 +61,9 @@ class SellerListCreateView(generics.ListCreateAPIView):
     queryset = Seller.objects.all()
     serializer_class = SellerSerializer
 
+    @method_decorator(cache_page(60 * 15))  # Cache for 15 minutes
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
 
 class SellerRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Seller.objects.all()
@@ -62,6 +76,9 @@ class SellerDashboardListCreateView(generics.ListCreateAPIView):
     queryset = SellerDashboard.objects.all()
     serializer_class = SellerDashboardSerializer
 
+    @method_decorator(cache_page(60 * 15))  # Cache for 15 minutes
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
 
 class SellerDashboardRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = SellerDashboard.objects.all()
@@ -74,6 +91,9 @@ class PaymentListCreateView(generics.ListCreateAPIView):
     queryset = Payment.objects.all()
     serializer_class = PaymentSerializer
 
+    @method_decorator(cache_page(60 * 15))  # Cache for 15 minutes
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
 
 class PaymentRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Payment.objects.all()
@@ -86,6 +106,9 @@ class InventoryListCreateView(generics.ListCreateAPIView):
     queryset = Inventory.objects.all()
     serializer_class = InventorySerializer
 
+    @method_decorator(cache_page(60 * 15))  # Cache for 15 minutes
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
 
 class InventoryRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Inventory.objects.all()
@@ -98,6 +121,9 @@ class ReviewListCreateView(generics.ListCreateAPIView):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
 
+    @method_decorator(cache_page(60 * 15))  # Cache for 15 minutes
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
 
 class ReviewRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Review.objects.all()
@@ -110,6 +136,9 @@ class ShippingListCreateView(generics.ListCreateAPIView):
     queryset = Shipping.objects.all()
     serializer_class = ShippingSerializer
 
+    @method_decorator(cache_page(60 * 15))  # Cache for 15 minutes
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
 
 class ShippingRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Shipping.objects.all()
@@ -122,6 +151,9 @@ class TaxListCreateView(generics.ListCreateAPIView):
     queryset = Tax.objects.all()
     serializer_class = TaxSerializer
 
+    @method_decorator(cache_page(60 * 15))  # Cache for 15 minutes
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
 
 class TaxRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Tax.objects.all()

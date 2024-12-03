@@ -47,6 +47,11 @@ INSTALLED_APPS = [
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
+    'allauth.socialaccount.providers.facebook',
+    'allauth.socialaccount.providers.github',
+    'allauth.socialaccount.providers.microsoft',
+    'allauth.socialaccount.providers.apple',
     'dj_rest_auth',
     'rest_framework',
     'rest_framework.authtoken',
@@ -181,6 +186,14 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
     ],
+    'DEFAULT_THROTTLE_CLASSES': [
+        'accounts.throttling.RedisThrottle',  # Custom throttle class
+        'eccomerce.throttling.RedisThrottle',  # Custom throttle class
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'user': '100/hour',  # Rate limit for authenticated users
+        'anon': '60/minute',  # Rate limit for anonymous users
+    },
 }
 
 DJ_REST_AUTH = {
@@ -239,3 +252,67 @@ CORS_ALLOW_CREDENTIALS = config('CORS_ALLOW_CREDENTIALS', cast=bool, default=Fal
 #     "authorization",
 #     "x-custom-header",
 # ]
+
+# OAUTH INTEGRATION
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'SCOPE': [
+            'profile',
+            'email',
+        ],
+        'AUTH_PARAMS': {
+            'access_type': 'online',
+        },
+        'OAUTH_PKCE_ENABLED': True,
+    },
+    'facebook': {
+        'SCOPE': [
+            'email',
+            'public_profile',
+        ],
+        'AUTH_PARAMS': {
+            'auth_type': 'rerequest',
+        },
+    },
+    'github': {
+        'SCOPE': ['user', 'email'],
+    },
+    'microsoft': {
+        'SCOPE': ['User.Read'],
+    },
+    'apple': {
+        'SCOPE': ['name', 'email'],
+        'CLIENT_ID': config('SOCIAL_AUTH_APPLE_CLIENT_ID'),
+        'CLIENT_SECRET': config('SOCIAL_AUTH_APPLE_SECRET'),
+        'AUTH_PARAMS': {
+            'response_mode': 'form_post',
+        },
+    },
+}
+
+SOCIAL_AUTH_GOOGLE_CLIENT_ID = config('SOCIAL_AUTH_GOOGLE_CLIENT_ID')
+SOCIAL_AUTH_GOOGLE_SECRET = config('SOCIAL_AUTH_GOOGLE_SECRET')
+
+SOCIAL_AUTH_FACEBOOK_CLIENT_ID = config('SOCIAL_AUTH_FACEBOOK_CLIENT_ID')
+SOCIAL_AUTH_FACEBOOK_SECRET = config('SOCIAL_AUTH_FACEBOOK_SECRET')
+
+SOCIAL_AUTH_GITHUB_CLIENT_ID = config('SOCIAL_AUTH_GITHUB_CLIENT_ID')
+SOCIAL_AUTH_GITHUB_SECRET = config('SOCIAL_AUTH_GITHUB_SECRET')
+
+SOCIAL_AUTH_MICROSOFT_CLIENT_ID = config('SOCIAL_AUTH_MICROSOFT_CLIENT_ID')
+SOCIAL_AUTH_MICROSOFT_SECRET = config('SOCIAL_AUTH_MICROSOFT_SECRET')
+
+SOCIAL_AUTH_APPLE_CLIENT_ID = config('SOCIAL_AUTH_APPLE_CLIENT_ID')
+SOCIAL_AUTH_APPLE_SECRET = config('SOCIAL_AUTH_APPLE_SECRET')
+
+
+# REDIS AS CACHE BACKGROUND
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': config('REDIS_URL'),  # Redis server location and database index
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        }
+    }
+}
