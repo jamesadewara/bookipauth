@@ -6,8 +6,11 @@ from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
 from eccomerce.models import Book
 from eccomerce.serializers import BookSerializer
+from rest_framework.permissions import IsAdminUser, IsAuthenticated
 
 class BookSearchView(APIView):
+    permission_classes = [IsAdminUser, IsAuthenticated]
+
     def get(self, request, *args, **kwargs):
         query = request.query_params.get('query', None)
         genre = request.query_params.get('genre', None)
