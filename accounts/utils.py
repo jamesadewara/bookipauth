@@ -1,3 +1,4 @@
+import requests
 from cryptography.fernet import Fernet
 import base64
 from django.conf import settings
@@ -66,3 +67,24 @@ async def serve():
 
 if __name__ == "__main__":
     asyncio.run(serve())
+
+
+def send_subscription_email(user_email):
+    request_url = f"https://api.mailgun.net/v3/{settings.MAILGUN_DOMAIN}/messages"
+    
+    response = requests.post(
+        request_url,
+        auth=("api", settings.MAILGUN_API_KEY),
+        data={
+            "from": f"Your App <noreply@{settings.MAILGUN_DOMAIN}>",
+            "to": [user_email],
+            "subject": "Subscription Confirmation",
+            "text": "Thank you for subscribing to our service!",
+        },
+    )
+    
+    if response.status_code == 200:
+        print("Subscription email sent successfully!")
+    else:
+        print("Failed to send subscription email.")
+        print(response.json())

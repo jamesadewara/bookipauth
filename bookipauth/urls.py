@@ -8,9 +8,9 @@ from drf_yasg import openapi
 
 schema_view = get_schema_view(
     openapi.Info(
-        title="Bookip API",
+        title="Bookip Authentication API",
         default_version='v1',
-        description="Bookip API documentation",
+        description="Bookip Authentication API documentation",
         terms_of_service="https://www.bookip.com/policies/terms/",
         contact=openapi.Contact(email="contact@yourapi.local"),
         license=openapi.License(name="BSD License"),
@@ -21,8 +21,6 @@ schema_view = get_schema_view(
 
 urlpatterns = [
     path("accounts/", include("accounts.urls")),
-    path("eccomerce/", include("eccomerce.urls")),
-    path("search/", include("query.urls")),
     path('admin/', admin.site.urls),
     # Swagger endpoints
     re_path(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),

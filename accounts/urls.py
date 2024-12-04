@@ -9,6 +9,7 @@ from allauth.socialaccount.providers.facebook.views import FacebookOAuth2LoginVi
 from allauth.socialaccount.providers.github.views import GitHubOAuth2LoginView
 from allauth.socialaccount.providers.microsoft.views import MicrosoftOAuth2LoginView
 from allauth.socialaccount.providers.apple.views import AppleOAuth2LoginView
+from .views import SubscriptionToggleView
 
 urlpatterns = [
     path('auth/', include('dj_rest_auth.urls')),           # Includes login/logout/password reset
@@ -21,4 +22,5 @@ urlpatterns = [
     path('login/github/', GitHubOAuth2LoginView.as_view(), name='github_login'),
     path('login/microsoft/', MicrosoftOAuth2LoginView.as_view(), name='microsoft_login'),
     path('login/apple/', AppleOAuth2LoginView.as_view(), name='apple_login'),
+    path('subscription/toggle/', SubscriptionToggleView.as_view(), name='subscription-toggle'),
 ]

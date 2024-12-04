@@ -1,5 +1,5 @@
 """
-ASGI config for bookip project.
+ASGI config for bookipauth project.
 
 It exposes the ASGI callable as a module-level variable named ``application``.
 
@@ -11,6 +11,6 @@ import os
 
 from django.core.asgi import get_asgi_application
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'bookip.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'bookipauth.settings')
 
 application = get_asgi_application()
