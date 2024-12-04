@@ -103,7 +103,7 @@ DATABASES = {
         'PASSWORD': config('DATABASE_PASSWORD'),
         'HOST': config('DATABASE_HOST', default='localhost'),
         'PORT': config('DATABASE_PORT', default='5432'),
-        'CONN_MAX_AGE': 600,
+        'CONN_MAX_AGE': 700,
     }
 }
 
@@ -183,7 +183,7 @@ ACCOUNT_EMAIL_VERIFICATION = 'mandatory'  # Options: "mandatory", "optional", or
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER  # Default email sender
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),  # Set access token expiry time
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=31),  # Set access token expiry time
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),     # Set refresh token expiry time
     'ROTATE_REFRESH_TOKENS': True,                  # Option to rotate refresh tokens
     'BLACKLIST_AFTER_ROTATION': True,               # Blacklist tokens after rotation
@@ -197,8 +197,7 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ],
     'DEFAULT_THROTTLE_CLASSES': [
-        'accounts.throttling.RedisThrottle',  # Custom throttle class
-        'eccomerce.throttling.RedisThrottle',  # Custom throttle class
+        # 'accounts.throttling.RedisThrottle',  # Custom throttle class, enable when redis is installed using docker
     ],
     'DEFAULT_THROTTLE_RATES': {
         'user': '100/hour',  # Rate limit for authenticated users
@@ -317,10 +316,14 @@ SOCIAL_AUTH_APPLE_SECRET = config('SOCIAL_AUTH_APPLE_SECRET')
 
 
 # REDIS AS CACHE BACKGROUND
+REDIS_URL_ADDRESS = config('REDIS_URL_ADDRESS')
+REDIS_URL_PORT = config('REDIS_URL_PORT', cast=int)
+REDIS_URL_DB = config('REDIS_URL_DB', cast=int)
+
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': config('REDIS_URL'),  # Redis server location and database index
+        'LOCATION': f"{REDIS_URL_ADDRESS}/{REDIS_URL_PORT}/{REDIS_URL_DB}",
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
         }

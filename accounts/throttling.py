@@ -1,4 +1,5 @@
 from rest_framework.throttling import SimpleRateThrottle
+from django.conf import settings
 import redis
 
 class RedisThrottle(SimpleRateThrottle):
@@ -14,7 +15,7 @@ class RedisThrottle(SimpleRateThrottle):
         ip = self.get_ident(request)
         
         # Use Redis to count the requests for this IP
-        redis_client = redis.StrictRedis(host='localhost', port=6379, db=0)
+        redis_client = redis.StrictRedis(host=settings.REDIS_URL_ADDRESS, port=settings.REDIS_URL_PORT, db=settings.REDIS_URL_DB)
         current_count = redis_client.get(ip)
 
         if current_count is None:
