@@ -1,13 +1,12 @@
-from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
-from .models import MainUser
 from .serializers import SubscriptionSerializer
-from .signals import *
+from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 class SubscriptionToggleView(APIView):
-    permission_classes = [IsAuthenticated]  # Require authentication
+    permission_classes = [IsAuthenticated, JWTAuthentication]  # Require authentication
 
     def patch(self, request):
         user = request.user  # Get the authenticated user

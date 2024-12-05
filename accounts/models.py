@@ -1,8 +1,10 @@
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.db import models
+from django.core.files.storage import default_storage
+import os
 from .backends import MainUserManager
-from .utils import user_profile_directory_path
 from enum import Enum
+from .utils import user_profile_directory_path
 
 class UserRoles(Enum):
     ADMIN = 'admin'
@@ -34,3 +36,14 @@ class MainUser(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.email
+
+    def save(self, *args, **kwargs):
+        # Check if the user already has a profile picture
+        if self.pk:
+            old_user = MainUser.objects.filter(pk=self.pk).first()
+            if old_user and old_user.profile_picture and old_user.profile_picture != self.profile_picture:
+                # Delete the old profile picture file if it exists and is different
+                if default_storage.exists(old_user.profile_picture.path):
+                    default_storage.delete(old_user.profile_picture.path)
+
+        super().save(*args, **kwargs)

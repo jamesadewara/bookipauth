@@ -23,12 +23,14 @@ class EncryptionHelper:
         decrypted_id = self.fernet.decrypt(decoded_encrypted_id)
         return int(decrypted_id.decode())
 
-
 def user_profile_directory_path(instance, filename):
-    """Save files under a directory based on the encrypted user ID."""
-    encryption_helper = EncryptionHelper()
-    encrypted_id = encryption_helper.encrypt_id(instance.id)
-    return f'imgs/profile/{encrypted_id}/{filename}'
+    """
+    Generates file path to save the user's profile picture.
+    The image will be stored as 'profile_pictures/<user_email>.extension'.
+    """
+    email = instance.email.split('@')[0]  # Get the part before @
+    extension = filename.split('.')[-1]  # Get file extension
+    return f"profile_pictures/{email}.{extension}"
 
 def send_subscription_email(user_email):
     request_url = f"https://api.mailgun.net/v3/{settings.MAILGUN_DOMAIN}/messages"
