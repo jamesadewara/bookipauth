@@ -7,10 +7,8 @@ from enum import Enum
 from .utils import user_profile_directory_path
 
 class UserRoles(Enum):
-    ADMIN = 'admin'
-    CUSTOMER = 'customer'
+    BUYER = 'buyer'
     SELLER = 'seller'
-    GUEST = 'guest'
 
 class MainUser(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
@@ -20,19 +18,19 @@ class MainUser(AbstractBaseUser, PermissionsMixin):
     role = models.CharField(
         max_length=10,
         choices=[(role.value, role.name) for role in UserRoles],
-        default=UserRoles.GUEST.value
+        blank=True, null=True
     )
     phone_number = models.CharField(max_length=15, blank=True, null=True)
     date_of_birth = models.DateField(blank=True, null=True)
     profile_picture = models.ImageField(upload_to=user_profile_directory_path, blank=True, null=True)
-    is_subscribed = models.BooleanField(default=True)
-    is_active = models.BooleanField(default=True)
-    is_staff = models.BooleanField(default=False)
+    is_subscribed = models.BooleanField(default=False)
+    # is_active = models.BooleanField(default=False)
+    # is_staff = models.BooleanField(default=False)
 
     objects = MainUserManager()
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username', 'first_name', 'role']
+    REQUIRED_FIELDS = ['username', 'first_name']
 
     def __str__(self):
         return self.email

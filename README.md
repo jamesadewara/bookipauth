@@ -22,6 +22,8 @@ The **Bookstore API** is designed to manage a platform for buying and selling bo
 - **Redis**: For caching to speed up the application.
 - **Cross-Origin Resource Sharing (CORS)**: For handling requests from different origins.
 - **Role Specific**:
+- Docker 
+- Encryption
 
 **Note:**  
 *When DEBUG is False, you should never use HTTP connections without proper SSL configurations to ensure sensitive data, including user credentials, are securely transmitted.*

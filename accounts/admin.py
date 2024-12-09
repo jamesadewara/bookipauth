@@ -10,7 +10,7 @@ class MainUserCreationForm(forms.ModelForm):
 
     class Meta:
         model = MainUser
-        fields = ('email', 'username', 'first_name', 'role')
+        fields = ('email', 'username', 'first_name')
 
     def clean_password2(self):
         # Check that the two password entries match
@@ -31,8 +31,8 @@ class MainUserCreationForm(forms.ModelForm):
 class MainUserAdmin(BaseUserAdmin):
     """Custom admin interface for MainUser model."""
     add_form = MainUserCreationForm
-    list_display = ('email', 'username', 'first_name', 'role', 'is_active', 'is_staff')
-    list_filter = ('role', 'is_active', 'is_staff')
+    list_display = ('email', 'username', 'first_name', 'role', 'is_superuser')
+    list_filter = ('role', 'is_superuser')
 
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
@@ -42,7 +42,6 @@ class MainUserAdmin(BaseUserAdmin):
         ('Subscription', {'fields': ('is_subscribed',)}),
     )
 
-    # Fields to display when adding a new user
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
@@ -50,9 +49,43 @@ class MainUserAdmin(BaseUserAdmin):
         }),
     )
 
-    search_fields = ('email', 'username')
+    search_fields = ('email', 'username', 'role')
     ordering = ('email',)
     filter_horizontal = ('groups', 'user_permissions')
+
+    def get_fieldsets(self, request, obj=None):
+        """Customize the fieldsets based on user privileges."""
+        fieldsets = super().get_fieldsets(request, obj)
+        if not request.user.is_superuser:
+            # Restrict permissions fields for non-superusers
+            fieldsets = [
+                (name, {'fields': [field for field in opts['fields'] if field not in ('is_superuser', 'groups', 'user_permissions')]})
+                for name, opts in fieldsets
+            ]
+        return fieldsets
+
+    def get_readonly_fields(self, request, obj=None):
+        """Set certain fields as read-only based on user privileges."""
+        if not request.user.is_superuser:
+            return ('is_superuser', 'role', 'groups', 'user_permissions')
+        return super().get_readonly_fields(request, obj)
+
+    def has_delete_permission(self, request, obj=None):
+        """Restrict delete permissions for staff users."""
+        if not request.user.is_superuser:
+            return False
+        return super().has_delete_permission(request, obj)
+
+    def has_change_permission(self, request, obj=None):
+        """Restrict change permissions for certain fields."""
+        if obj and not request.user.is_superuser:
+            # Staff cannot change the superuser status or role
+            restricted_fields = ('is_superuser', 'role')
+            for field in restricted_fields:
+                if request.POST.get(field) and getattr(obj, field) != request.POST[field]:
+                    return False
+        return super().has_change_permission(request, obj)
+
 
 # Register the custom admin class
 admin.site.register(MainUser, MainUserAdmin)

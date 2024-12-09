@@ -1,0 +1,13 @@
+services:
+  django:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/bookipauth
+    environment:
+      - DEBUG=True
+  redis:
+    image: "redis:alpine"
+    ports:
+      - "6379:6379"

@@ -170,6 +170,7 @@ SITE_ID = 1  # Default site ID
 # ================================
 
 AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
     'allauth.account.auth_backends.AuthenticationBackend',  # Allauth authentication backend
 ]
 
@@ -187,7 +188,8 @@ ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 1
 # Email Settings
 # ================================
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.mailgun.org'  # Mailgun SMTP host
 EMAIL_PORT = 587  # Mailgun SMTP port
 EMAIL_USE_TLS = config('EMAIL_USE_TLS', cast=bool, default=True)  # Use TLS for email
@@ -221,14 +223,15 @@ SIMPLE_JWT = {
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework_simplejwt.authentication.JWTAuthentication',  # JWT authentication
-        'rest_framework.authentication.SessionAuthentication',  # Optional if you want session-based login too
+        'rest_framework_simplejwt.authentication.JWTAuthentication', 
+        
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',  # Only authenticated users can access
     ],
-    'DEFAULT_THROTTLE_CLASSES': [],
-    'DEFAULT_THROTTLE_RATES': {
+        'DEFAULT_THROTTLE_CLASSES': [
+        # 'accounts.throttling.RedisThrottle', 
+    ], 'DEFAULT_THROTTLE_RATES': {
         'user': '100/hour',  # Rate limit for user requests
         'anon': '60/minute',  # Rate limit for anonymous requests
     },
@@ -239,6 +242,7 @@ REST_FRAMEWORK = {
 # ================================
 
 REST_AUTH = {
+    'LOGIN_SERIALIZER': 'dj_rest_auth.serializers.LoginSerializer',
     'USER_DETAILS_SERIALIZER': 'dj_rest_auth.serializers.UserDetailsSerializer',
     'REGISTER_PERMISSION_CLASSES': ('rest_framework.permissions.AllowAny',),
 }
@@ -264,6 +268,33 @@ if not DEBUG:
     SECURE_CONTENT_TYPE_NOSNIFF = config('SECURE_CONTENT_TYPE_NOSNIFF', cast=bool, default=True)
     SECURE_BROWSER_XSS_FILTER = config('SECURE_BROWSER_XSS_FILTER', cast=bool, default=True)
     X_FRAME_OPTIONS = config('X_FRAME_OPTIONS', cast=str, default="DENY") # Prevent clickjacking attacks
+
+# CROSS ORIGIN
+CORS_ALLOW_ALL_ORIGINS = config('CORS_ALLOW_ALL_ORIGINS', cast=bool, default=False)
+
+# Allow Specific Origins
+# CORS_ALLOWED_ORIGINS = [
+#     "https://example.com",
+#     "https://anotherdomain.com",
+# ]
+
+# Allow Credentials
+CORS_ALLOW_CREDENTIALS = config('CORS_ALLOW_CREDENTIALS', cast=bool, default=False)
+
+# Allow Specific HTTP Methods
+# CORS_ALLOW_METHODS = [
+#     "GET",
+#     "POST",
+#     "PUT",
+#     "DELETE",
+# ]
+
+# Allow Specific Header
+# CORS_ALLOW_HEADERS = [
+#     "content-type",
+#     "authorization",
+#     "x-custom-header",
+# ]
 
 # ================================
 # Social Authentication (Google, Facebook, GitHub, etc.)
@@ -320,24 +351,21 @@ SOCIAL_AUTH_MICROSOFT_SECRET = config('SOCIAL_AUTH_MICROSOFT_SECRET')
 
 SOCIAL_AUTH_APPLE_CLIENT_ID = config('SOCIAL_AUTH_APPLE_CLIENT_ID')
 SOCIAL_AUTH_APPLE_SECRET = config('SOCIAL_AUTH_APPLE_SECRET')
+
 # ================================
 # Redis Configuration (commented out)
 # ================================
+REDIS_URL_ADDRESS = config('REDIS_URL_ADDRESS', default='redis://127.0.0.1')  # Redis URL
+REDIS_URL_PORT = config('REDIS_URL_PORT', default=6379)  # Redis port
+REDIS_URL_DB = config('REDIS_URL_DB', default=1)  # Redis DB
 
-# REDIS_HOST = config('REDIS_HOST', default='localhost')  # Redis host
-# REDIS_PORT = config('REDIS_PORT', default=6379)  # Redis port
-# REDIS_DB = config('REDIS_DB', default=0)  # Redis database
-# REDIS_URL_ADDRESS = config('REDIS_URL_ADDRESS', default='redis://127.0.0.1')  # Redis URL
-# REDIS_URL_PORT = config('REDIS_URL_PORT', default=6379)  # Redis port
-# REDIS_URL_DB = config('REDIS_URL_DB', default=1)  # Redis DB
-
-# ================================
-# CORS Configuration (commented out)
-# ================================
-
-# CORS_ALLOWED_ORIGINS = [
-#     'http://localhost:3000',  # Frontend development server
-#     'https://yourdomain.com',  # Your production domain
-# ]
-# CORS_ALLOW_ALL_ORIGINS = True  # Allow all origins (set to False in production)
-# CORS_ALLOW_CREDENTIALS = True  # Allow credentials in CORS requests
+# REDIS AS CACHE BACKGROUND
+# CACHES = {
+#     'default': {
+#         'BACKEND': 'django_redis.cache.RedisCache',
+#         'LOCATION': f"{REDIS_URL_ADDRESS}/{REDIS_URL_PORT}/{REDIS_URL_DB}",
+#         'OPTIONS': {
+#             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+#         }
+#     }
+# }
