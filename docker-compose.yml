@@ -1,13 +1,21 @@
+# version: '3.9'
+
 services:
-  django:
-    build: .
-    ports:
-      - "8000:8000"
-    volumes:
-      - .:/bookipauth
+  postgres:
+    image: postgres:latest
+    container_name: bookipauth_postgres
+    restart: always
     environment:
-      - DEBUG=True
-  redis:
-    image: "redis:alpine"
+      POSTGRES_DB: ${DATABASE_NAME}
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
     ports:
-      - "6379:6379"
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
+
+
+    

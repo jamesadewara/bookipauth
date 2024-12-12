@@ -28,12 +28,12 @@ class MainUserCreationForm(forms.ModelForm):
             user.save()
         return user
 
+
 class MainUserAdmin(BaseUserAdmin):
     """Custom admin interface for MainUser model."""
     add_form = MainUserCreationForm
     list_display = ('email', 'username', 'first_name', 'role', 'is_superuser')
     list_filter = ('role', 'is_superuser')
-
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
         ('Personal Info', {'fields': ('username', 'first_name', 'last_name', 'phone_number', 'date_of_birth', 'profile_picture')}),

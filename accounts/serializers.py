@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from accounts.models import MainUser
+from accounts.models import MainUser, SubscriptionPlan
 
 class MainUserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -18,14 +18,15 @@ class UpdateMainUserSerializer(serializers.ModelSerializer):
             'phone_number', 'date_of_birth', 'profile_picture'
         ]
 
+class SubscriptionPlanSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SubscriptionPlan
+        fields = ['id', 'name', 'price', 'duration_days', 'description']
+
 class SubscriptionSerializer(serializers.ModelSerializer):
+    plan_id = serializers.IntegerField(write_only=True, required=False)
+    subscribe = serializers.BooleanField(write_only=True, required=True)
+
     class Meta:
         model = MainUser
-        fields = ['is_subscribed']  # Only expose the subscription field
-        read_only_fields = ['email', 'username', 'first_name', 'last_name']
-
-    def update(self, instance, validated_data):
-        # Update subscription status
-        instance.is_subscribed = validated_data.get('is_subscribed', instance.is_subscribed)
-        instance.save()
-        return instance
+        fields = ['is_subscribed', 'subscription_expiry', 'plan_id', 'subscribe']

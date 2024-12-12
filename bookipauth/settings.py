@@ -3,6 +3,9 @@ from decouple import config
 from .juzzmin import JAZZMIN_SETTINGS as JAZZMIN_CONF
 from os import path as os_path
 from datetime import timedelta
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
 
 # ================================
 # Project Directory and Paths
@@ -29,31 +32,34 @@ ALLOWED_HOSTS = ["127.0.0.1"]
 # ================================
 # Installed Apps
 # ================================
-
 INSTALLED_APPS = [
-    'jazzmin',  # Admin interface customization
-    'django.contrib.admin',  # Django admin interface
-    'django.contrib.auth',  # User authentication
-    'django.contrib.contenttypes',  # Django content type system
-    'django.contrib.sessions',  # Session management
-    'django.contrib.messages',  # Flash messages
-    'django.contrib.staticfiles',  # Static files handling
-    'corsheaders',  # Cross-origin resource sharing
+    'jazzmin',
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'django.contrib.sites',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
+    'allauth.socialaccount.providers.facebook',
+    'allauth.socialaccount.providers.github',
+    'allauth.socialaccount.providers.microsoft',
+    'allauth.socialaccount.providers.apple',
     'dj_rest_auth',
     'dj_rest_auth.registration',
-    'allauth',  # Third-party authentication
-    'allauth.account',  # Allauth account management
-    'allauth.socialaccount',  # Allauth social account management
-    'allauth.socialaccount.providers.google',  # Google login
-    'allauth.socialaccount.providers.facebook',  # Facebook login
-    'allauth.socialaccount.providers.github',  # GitHub login
-    'allauth.socialaccount.providers.microsoft',  # Microsoft login
-    'allauth.socialaccount.providers.apple',  # Apple login
     'rest_framework',
     'rest_framework_simplejwt',
     'rest_framework.authtoken',
-    "accounts.apps.AccountsConfig",  # Your custom accounts app
-    'drf_yasg',  # Swagger/OpenAPI support
+    'corsheaders',
+    'anymail',
+    'cloudinary',
+    'cloudinary_storage',
+    'drf_yasg',
+    "accounts.apps.AccountsConfig",
 ]
 
 # ================================
@@ -116,9 +122,15 @@ DATABASES = {
         'PASSWORD': config('DATABASE_PASSWORD'),  # Database password from environment variable
         'HOST': config('DATABASE_HOST', default='localhost'),  # Database host (default is localhost)
         'PORT': config('DATABASE_PORT', default='5432'),  # Database port (default is 5432)
-        'CONN_MAX_AGE': 700,  # Max connection age for persistent connections
+        'CONN_MAX_AGE': 600,  # Max connection age for persistent connections
+        # 'OPTIONS': {
+        #     'sslmode': 'require',  # Enforce SSL for connections
+        # },
     }
 }
+
+# Atomic Transactions
+# ATOMIC_REQUESTS = True
 
 # ================================
 # Password Validation
@@ -145,11 +157,24 @@ USE_TZ = True
 # Static and Media Files
 # ================================
 
-STATIC_URL = 'static/'  # URL for serving static files
-STATIC_ROOT = os_path.join(BASE_DIR, "static")  # Path for static files in production
+STATIC_URL = 'static/'  
+STATIC_ROOT = os_path.join(BASE_DIR, "static") 
+MEDIA_URL = "/media/"  
+MEDIA_ROOT = os_path.join(BASE_DIR, "media")  
 
-MEDIA_URL = "/media/"  # URL for serving media files
-MEDIA_ROOT = os_path.join(BASE_DIR, "media")  # Path for media files
+# Cloudinary credentials (if using Cloudinary)
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': config('CLOUDINARY_CLOUD_NAME', cast=str, default=''),
+    'API_KEY': config('CLOUDINARY_API_KEY', cast=str, default=''),
+    'API_SECRET': config('CLOUDINARY_API_SECRET', cast=str, default=''),
+    'SECURE': config('CLOUDINARY_SECURE', cast=bool, default=False)
+}
+
+# Configure the default file storage
+DEFAULT_FILE_STORAGE = config(
+    'DEFAULT_FILE_STORAGE',
+    default='django.core.files.storage.FileSystemStorage'
+)
 
 # ================================
 # Admin Customization
@@ -158,12 +183,6 @@ MEDIA_ROOT = os_path.join(BASE_DIR, "media")  # Path for media files
 JAZZMIN_SETTINGS = JAZZMIN_CONF  # Jazzmin settings for the Django admin interface
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'  # Default auto field type for models
-
-# ================================
-# Site Configuration
-# ================================
-
-SITE_ID = 1  # Default site ID
 
 # ================================
 # Authentication Backends
@@ -175,7 +194,9 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 # Django Allauth Settings
-ACCOUNT_AUTHENTICATED_REDIRECT_URL = '/'  # Redirect after login
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
+ACCOUNT_AUTHENTICATED_REDIRECT_URL = '/'
 # Configure allauth for email-based authentication
 ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_EMAIL_VERIFICATION = 'mandatory'  # Options: "mandatory", "optional", or "none"
@@ -187,19 +208,15 @@ ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 1
 # ================================
 # Email Settings
 # ================================
-
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.mailgun.org'  # Mailgun SMTP host
-EMAIL_PORT = 587  # Mailgun SMTP port
-EMAIL_USE_TLS = config('EMAIL_USE_TLS', cast=bool, default=True)  # Use TLS for email
-EMAIL_HOST_USER = config('EMAIL_HOST_USER')  # Mailgun user from environment variables
-EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')  # Mailgun password from environment variables
-MAILGUN_API_KEY = config('MAILGUN_API_KEY')  # Mailgun API key
-MAILGUN_DOMAIN = EMAIL_HOST_USER  # Mailgun domain
-
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER  # Default sender email for allauth
-
+ELASTIC_EMAIL_API_KEY = config('ELASTIC_EMAIL_API_KEY', cast=str)
+ELASTIC_EMAIL_API_URL = config('ELASTIC_EMAIL_API_URL', cast=str)
+EMAIL_BACKEND = config('EMAIL_BACKEND', cast=str, default='django.core.mail.backends.smtp.EmailBackend')
+EMAIL_HOST = config('EMAIL_HOST', cast=str, default='smtp.elasticemail.com')
+EMAIL_PORT = config('EMAIL_PORT', cast=int, default=587)
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', cast=bool, default=True)
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', cast=str, default='')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL')
 # ================================
 # Simple JWT Settings
 # ================================
@@ -224,7 +241,8 @@ SIMPLE_JWT = {
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication', 
-        
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',  # Only authenticated users can access
@@ -299,10 +317,16 @@ CORS_ALLOW_CREDENTIALS = config('CORS_ALLOW_CREDENTIALS', cast=bool, default=Fal
 # ================================
 # Social Authentication (Google, Facebook, GitHub, etc.)
 # ================================
+# ================================
+# Site Configuration
+# ================================
+
+SITE_ID = 2  # Default site ID
 
 # OAUTH INTEGRATION
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
+        'FETCH_USERINFO' : True,
         'SCOPE': [
             'profile',
             'email',
@@ -313,45 +337,88 @@ SOCIALACCOUNT_PROVIDERS = {
         'OAUTH_PKCE_ENABLED': True,
     },
     'facebook': {
-        'SCOPE': [
-            'email',
-            'public_profile',
+        'LOCALE_FUNC': lambda request: 'en_US',
+        'METHOD': 'oauth2',  # Set to 'js_sdk' to use the Facebook connect SDK
+        'SDK_URL': '//connect.facebook.net/{locale}/sdk.js',
+        'SCOPE': ['email', 'public_profile'],
+        'AUTH_PARAMS': {'auth_type': 'reauthenticate'},
+        'INIT_PARAMS': {'cookie': True},
+        'FIELDS': [
+            'id',
+            'first_name',
+            'last_name',
+            'middle_name',
+            'name',
+            'name_format',
+            'picture',
+            'short_name'
         ],
-        'AUTH_PARAMS': {
-            'auth_type': 'rerequest',
-        },
+        'EXCHANGE_TOKEN': True,
+        'LOCALE_FUNC': 'path.to.callable',
+        'VERIFIED_EMAIL': False,
+        'VERSION': 'v13.0',
+        'GRAPH_API_URL': 'https://graph.facebook.com/v13.0',
     },
     'github': {
-        'SCOPE': ['user', 'email'],
+        'SCOPE': [
+            'user',
+            'repo',
+            'read:org',
+        ],
     },
-    'microsoft': {
-        'SCOPE': ['User.Read'],
+    "microsoft": {
+        "APPS": [
+            {
+                "client_id": "<insert-id>",
+                "secret": "<insert-secret>",
+                "settings": {
+                    "tenant": "organizations",
+                    # Optional: override URLs (use base URLs without path)
+                    "login_url": "https://login.microsoftonline.com",
+                    "graph_url": "https://graph.microsoft.com",
+                }
+            }
+        ]
     },
-    'apple': {
-        'SCOPE': ['name', 'email'],
-        'CLIENT_ID': config('SOCIAL_AUTH_APPLE_CLIENT_ID'),
-        'CLIENT_SECRET': config('SOCIAL_AUTH_APPLE_SECRET'),
-        'AUTH_PARAMS': {
-            'response_mode': 'form_post',
-        },
+    "apple": {
+        "APPS": [{
+            # Your service identifier.
+            "client_id": "your.service.id",
+
+            # The Key ID (visible in the "View Key Details" page).
+            "secret": "KEYID",
+
+             # Member ID/App ID Prefix -- you can find it below your name
+             # at the top right corner of the page, or it’s your App ID
+             # Prefix in your App ID.
+            "key": "MEMAPPIDPREFIX",
+
+            "settings": {
+                "hidden": True,
+                # The certificate you downloaded when generating the key.
+                "certificate_key": """-----BEGIN PRIVATE KEY-----
+s3cr3ts3cr3ts3cr3ts3cr3ts3cr3ts3cr3ts3cr3ts3cr3ts3cr3ts3cr3ts3cr
+3ts3cr3ts3cr3ts3cr3ts3cr3ts3cr3ts3cr3ts3cr3ts3cr3ts3cr3ts3cr3ts3
+c3ts3cr3t
+-----END PRIVATE KEY-----
+"""
+            }
+        }]
     },
+    "openid_connect": {
+        "APPS": [
+            {
+                "provider_id": "linkedin",
+                "name": "LinkedIn",
+                "client_id": "<insert-id>",
+                "secret": "<insert-secret>",
+                "settings": {
+                    "server_url": "https://www.linkedin.com/oauth",
+                },
+            }
+        ]
+    }
 }
-
-SOCIAL_AUTH_GOOGLE_CLIENT_ID = config('SOCIAL_AUTH_GOOGLE_CLIENT_ID')
-SOCIAL_AUTH_GOOGLE_SECRET = config('SOCIAL_AUTH_GOOGLE_SECRET')
-
-SOCIAL_AUTH_FACEBOOK_CLIENT_ID = config('SOCIAL_AUTH_FACEBOOK_CLIENT_ID')
-SOCIAL_AUTH_FACEBOOK_SECRET = config('SOCIAL_AUTH_FACEBOOK_SECRET')
-
-SOCIAL_AUTH_GITHUB_CLIENT_ID = config('SOCIAL_AUTH_GITHUB_CLIENT_ID')
-SOCIAL_AUTH_GITHUB_SECRET = config('SOCIAL_AUTH_GITHUB_SECRET')
-
-SOCIAL_AUTH_MICROSOFT_CLIENT_ID = config('SOCIAL_AUTH_MICROSOFT_CLIENT_ID')
-SOCIAL_AUTH_MICROSOFT_SECRET = config('SOCIAL_AUTH_MICROSOFT_SECRET')
-
-SOCIAL_AUTH_APPLE_CLIENT_ID = config('SOCIAL_AUTH_APPLE_CLIENT_ID')
-SOCIAL_AUTH_APPLE_SECRET = config('SOCIAL_AUTH_APPLE_SECRET')
-
 # ================================
 # Redis Configuration (commented out)
 # ================================
@@ -368,4 +435,20 @@ REDIS_URL_DB = config('REDIS_URL_DB', default=1)  # Redis DB
 #             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
 #         }
 #     }
+# }
+
+# LOGGING
+# LOGGING = {
+#     'version': 1,
+#     'handlers': {
+#         'console': {
+#             'class': 'logging.StreamHandler',
+#         },
+#     },
+#     'loggers': {
+#         'django.db.backends': {
+#             'level': 'DEBUG',
+#             'handlers': ['console'],
+#         },
+#     },
 # }

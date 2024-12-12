@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ provider_name }} Sign In</title>
+</head>
+{% csrf_token %}
+<body>
+    {% load socialaccount %}
+    {% if user.is_authenticated %}
+    <p>You are signed in as {{user.email}}</p>
+    <a href="{{ 'logout' }}">Logout With {{ provider_name }}</a>
+    {% else %}
+    <h2>Bookip Login</h2>
+    <a href="{% provider_login_url provider %}?next=/">signin</a>
+    {% endif %}
+</body>
+</html>

@@ -1,7 +1,7 @@
-import requests
 from cryptography.fernet import Fernet
 import base64
 from django.conf import settings
+from django.core.mail import send_mail
 
 # Generate a key (run this once and store in your settings securely)
 # key = Fernet.generate_key().decode()
@@ -32,22 +32,16 @@ def user_profile_directory_path(instance, filename):
     extension = filename.split('.')[-1]  # Get file extension
     return f"profile_pictures/{email}.{extension}"
 
+
 def send_subscription_email(user_email):
-    request_url = f"https://api.mailgun.net/v3/{settings.MAILGUN_DOMAIN}/messages"
-    
-    response = requests.post(
-        request_url,
-        auth=("api", settings.MAILGUN_API_KEY),
-        data={
-            "from": f"Bookip <noreply@{settings.MAILGUN_DOMAIN}>",
-            "to": [user_email],
-            "subject": "Subscription Confirmation",
-            "text": "Thank you for subscribing to our service!",
-        },
-    )
-    
-    if response.status_code == 200:
+    subject = "Subscription Confirmation"
+    message = "Thank you for subscribing to our service!"
+    from_email = f"Bookip <noreply@{settings.MAILGUN_DOMAIN}>"
+    recipient_list = [user_email]
+
+    try:
+        send_mail(subject, message, from_email, recipient_list, fail_silentily=False)
         print("Subscription email sent successfully!")
-    else:
+    except Exception as e:
         print("Failed to send subscription email.")
-        print(response.json())
+        print(str(e))
