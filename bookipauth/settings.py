@@ -326,6 +326,11 @@ SITE_ID = 2  # Default site ID
 # OAUTH INTEGRATION
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
+        'APP': {
+            'client_id': config('GOOGLE_CLIENT_ID'),
+            'secret': config('GOOGLE_CLIENT_SECRET'),
+            'key': ''
+        },
         'FETCH_USERINFO' : True,
         'SCOPE': [
             'profile',
@@ -360,25 +365,16 @@ SOCIALACCOUNT_PROVIDERS = {
         'GRAPH_API_URL': 'https://graph.facebook.com/v13.0',
     },
     'github': {
+        'APP': {
+            'client_id': config('GITHUB_CLIENT_ID'),
+            'secret': config('GITHUB_CLIENT_SECRET'),
+            'key': ''
+        },
         'SCOPE': [
             'user',
             'repo',
             'read:org',
         ],
-    },
-    "microsoft": {
-        "APPS": [
-            {
-                "client_id": "<insert-id>",
-                "secret": "<insert-secret>",
-                "settings": {
-                    "tenant": "organizations",
-                    # Optional: override URLs (use base URLs without path)
-                    "login_url": "https://login.microsoftonline.com",
-                    "graph_url": "https://graph.microsoft.com",
-                }
-            }
-        ]
     },
     "apple": {
         "APPS": [{
@@ -405,20 +401,7 @@ c3ts3cr3t
             }
         }]
     },
-    "openid_connect": {
-        "APPS": [
-            {
-                "provider_id": "linkedin",
-                "name": "LinkedIn",
-                "client_id": "<insert-id>",
-                "secret": "<insert-secret>",
-                "settings": {
-                    "server_url": "https://www.linkedin.com/oauth",
-                },
-            }
-        ]
     }
-}
 # ================================
 # Redis Configuration (commented out)
 # ================================
