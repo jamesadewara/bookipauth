@@ -47,8 +47,6 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.google',
     'allauth.socialaccount.providers.facebook',
     'allauth.socialaccount.providers.github',
-    'allauth.socialaccount.providers.microsoft',
-    'allauth.socialaccount.providers.apple',
     'dj_rest_auth',
     'dj_rest_auth.registration',
     'rest_framework',
@@ -342,6 +340,11 @@ SOCIALACCOUNT_PROVIDERS = {
         'OAUTH_PKCE_ENABLED': True,
     },
     'facebook': {
+        'APP': {
+            'client_id': config('GOOGLE_CLIENT_ID'),
+            'secret': config('GOOGLE_CLIENT_SECRET'),
+            'key': ''
+        },
         'LOCALE_FUNC': lambda request: 'en_US',
         'METHOD': 'oauth2',  # Set to 'js_sdk' to use the Facebook connect SDK
         'SDK_URL': '//connect.facebook.net/{locale}/sdk.js',
@@ -376,32 +379,7 @@ SOCIALACCOUNT_PROVIDERS = {
             'read:org',
         ],
     },
-    "apple": {
-        "APPS": [{
-            # Your service identifier.
-            "client_id": "your.service.id",
-
-            # The Key ID (visible in the "View Key Details" page).
-            "secret": "KEYID",
-
-             # Member ID/App ID Prefix -- you can find it below your name
-             # at the top right corner of the page, or it’s your App ID
-             # Prefix in your App ID.
-            "key": "MEMAPPIDPREFIX",
-
-            "settings": {
-                "hidden": True,
-                # The certificate you downloaded when generating the key.
-                "certificate_key": """-----BEGIN PRIVATE KEY-----
-s3cr3ts3cr3ts3cr3ts3cr3ts3cr3ts3cr3ts3cr3ts3cr3ts3cr3ts3cr3ts3cr
-3ts3cr3ts3cr3ts3cr3ts3cr3ts3cr3ts3cr3ts3cr3ts3cr3ts3cr3ts3cr3ts3
-c3ts3cr3t
------END PRIVATE KEY-----
-"""
-            }
-        }]
-    },
-    }
+}
 # ================================
 # Redis Configuration (commented out)
 # ================================
