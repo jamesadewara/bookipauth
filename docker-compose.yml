@@ -1,6 +1,12 @@
 # version: '3.9'
 
 services:
+  redis:
+    image: redis:alpine
+    container_name: bookipauth_redis
+    ports:
+      - "6379:6379"
+
   postgres:
     image: postgres:latest
     container_name: bookipauth_postgres
@@ -14,8 +20,40 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  django:
+    container_name: bookipauth_django
+    build: ./bookipauth
+    command: /bin/bash -c "source /app/venv/bin/activate && python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - ./bookipauth:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      - DATABASE_NAME=${DATABASE_NAME}
+      - DATABASE_USER=${DATABASE_USER}
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+      - DATABASE_HOST=postgres
+    networks:
+      - bookipauth_network
+
+  nginx:
+    container_name: bookipauth_nginx
+    image: nginx:alpine
+    volumes:
+      - ./bookipauth/nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - "80:80"
+    depends_on:
+      - django
+    networks:
+      - bookipauth_network
+
 volumes:
   postgres_data:
 
-
-    
+networks:
+  bookipauth_network:
+    driver: bridge

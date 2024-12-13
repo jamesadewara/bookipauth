@@ -65,6 +65,7 @@ INSTALLED_APPS = [
 # ================================
 
 MIDDLEWARE = [
+    # 'django.middleware.gzip.GZipMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'allauth.account.middleware.AccountMiddleware',  # Allauth middleware for user sessions
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -75,6 +76,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',  # XSS protection
 ]
+
+GZIP_MIN_LENGTH = 200  # Minimum response size (in bytes) to compress
 
 # ================================
 # Root URL Configuration
@@ -245,9 +248,11 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',  # Only authenticated users can access
     ],
-        'DEFAULT_THROTTLE_CLASSES': [
-        # 'accounts.throttling.RedisThrottle', 
-    ], 'DEFAULT_THROTTLE_RATES': {
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle',
+    ],
+    'DEFAULT_THROTTLE_RATES': {
         'user': '100/hour',  # Rate limit for user requests
         'anon': '60/minute',  # Rate limit for anonymous requests
     },
@@ -388,28 +393,33 @@ REDIS_URL_PORT = config('REDIS_URL_PORT', default=6379)  # Redis port
 REDIS_URL_DB = config('REDIS_URL_DB', default=1)  # Redis DB
 
 # REDIS AS CACHE BACKGROUND
-# CACHES = {
-#     'default': {
-#         'BACKEND': 'django_redis.cache.RedisCache',
-#         'LOCATION': f"{REDIS_URL_ADDRESS}/{REDIS_URL_PORT}/{REDIS_URL_DB}",
-#         'OPTIONS': {
-#             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-#         }
-#     }
-# }
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': f"{REDIS_URL_ADDRESS}/{REDIS_URL_PORT}/{REDIS_URL_DB}",
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        }
+    }
+}
 
-# LOGGING
-# LOGGING = {
-#     'version': 1,
-#     'handlers': {
-#         'console': {
-#             'class': 'logging.StreamHandler',
-#         },
-#     },
-#     'loggers': {
-#         'django.db.backends': {
-#             'level': 'DEBUG',
-#             'handlers': ['console'],
-#         },
-#     },
-# }
+# Django logging with Redis
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'redis': {
+            'level': 'DEBUG',
+            'class': 'logstash.TCPLogstashHandler',
+            'host': 'redis',
+            'port': 6379,
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['redis'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}
