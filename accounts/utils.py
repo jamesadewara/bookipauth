@@ -2,6 +2,8 @@ from cryptography.fernet import Fernet
 import base64
 from django.conf import settings
 from django.core.mail import send_mail
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str
 
 # Generate a key (run this once and store in your settings securely)
 # key = Fernet.generate_key().decode()
@@ -22,6 +24,12 @@ class EncryptionHelper:
         decoded_encrypted_id = base64.urlsafe_b64decode(encrypted_id.encode())
         decrypted_id = self.fernet.decrypt(decoded_encrypted_id)
         return int(decrypted_id.decode())
+
+    def encode_urlid(user_id):
+        return urlsafe_base64_encode(force_bytes(user_id))
+
+    def decode_urlid(encoded_id):
+        return force_str(urlsafe_base64_decode(encoded_id))
 
 def user_profile_directory_path(instance, filename):
     """

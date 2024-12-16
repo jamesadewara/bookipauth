@@ -6,6 +6,7 @@ from datetime import timedelta
 from .backends import MainUserManager
 from enum import Enum
 from .utils import user_profile_directory_path
+import uuid
 
 class UserRoles(Enum):
     BUYER = 'buyer'
@@ -23,6 +24,7 @@ class SubscriptionPlan(models.Model):
 
 
 class MainUser(AbstractBaseUser, PermissionsMixin):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     email = models.EmailField(unique=True)
     username = models.CharField(max_length=50)
     first_name = models.CharField(max_length=50)

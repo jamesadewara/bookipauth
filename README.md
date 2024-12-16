@@ -3,8 +3,7 @@
 
 ## Overview
 
-The **Bookstore API** is designed to manage a platform for buying and selling books. It offers features including user authentication, order management, inventory control, payments, reviews, and recommendations. The API facilitates interactions between buyers and sellers within a digital bookstore ecosystem.
-
+The **Bookstore Auth API** is designed to manage a platform for buying and selling books by offering user authentication api services.
 ## Technologies Used
 
 - **Backend Framework**: Django powers the backend of the application.
@@ -119,7 +118,7 @@ For a production environment, you can use **Docker** to containerize the applica
 
 1. **Clone the Repository**  
    ```bash
-   git clone https://github.com/yourusername/bookstore-api.git
+   git clone https://github.com/jamesadewara/bookipauth
    cd bookstore-api
    ```
 

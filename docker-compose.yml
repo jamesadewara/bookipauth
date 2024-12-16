@@ -20,14 +20,41 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
-  django:
-    container_name: bookipauth_django
-    build: ./bookipauth
-    command: /bin/bash -c "source /app/venv/bin/activate && python manage.py runserver 0.0.0.0:8000"
+  django1:
+    container_name: bookipauth_django1
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    command: /bin/bash -c "source /bookipauth/venv/bin/activate && python manage.py runserver 0.0.0.0:8000"
     volumes:
-      - ./bookipauth:/app
+      - .:/bookipauth
     ports:
-      - "8000:8000"
+      - "8001:8000"
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      - DATABASE_NAME=${DATABASE_NAME}
+      - DATABASE_USER=${DATABASE_USER}
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+      - DATABASE_HOST=postgres
+    networks:
+      - bookipauth_network
+
+  django2:
+    container_name: bookipauth_django2
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    command: /bin/bash -c "source /bookipauth/venv/bin/activate && python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - .:/bookipauth
+    ports:
+      - "8002:8000"
     depends_on:
       - postgres
       - redis
@@ -43,11 +70,12 @@ services:
     container_name: bookipauth_nginx
     image: nginx:alpine
     volumes:
-      - ./bookipauth/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx.conf:/etc/nginx/nginx.confs
     ports:
       - "80:80"
     depends_on:
-      - django
+      - django1
+      - django2
     networks:
       - bookipauth_network
 

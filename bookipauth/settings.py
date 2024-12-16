@@ -27,7 +27,7 @@ ENCRYPTION_KEY = config('ENCRYPTION_KEY')
 DEBUG = config('DEBUG', default=False, cast=bool)
 
 # Hosts allowed to access the Django app (add your production domain here)
-ALLOWED_HOSTS = ["127.0.0.1"]
+ALLOWED_HOSTS = ["*"]
 
 # ================================
 # Installed Apps
@@ -346,8 +346,8 @@ SOCIALACCOUNT_PROVIDERS = {
     },
     'facebook': {
         'APP': {
-            'client_id': config('GOOGLE_CLIENT_ID'),
-            'secret': config('GOOGLE_CLIENT_SECRET'),
+            'client_id': config('FACEBOOK_CLIENT_ID'),
+            'secret': config('FACEBOOK_CLIENT_SECRET'),
             'key': ''
         },
         'LOCALE_FUNC': lambda request: 'en_US',
@@ -384,6 +384,39 @@ SOCIALACCOUNT_PROVIDERS = {
             'read:org',
         ],
     },
+    "openid_connect": {
+        "APPS": [
+            {
+                "provider_id": "linkedin",
+                "name": "LinkedIn",
+                "client_id": config('LINKEDIN_CLIENT_ID'),
+                "secret": config('LINKEDIN_CLIENT_SECRET'),
+                "settings": {
+                    "server_url": "https://www.linkedin.com/oauth",
+                },
+            }
+        ]
+    },
+    "apple": {
+        "APPS": [{
+            # Your service identifier.
+            "client_id": config('LINKEDIN_CLIENT_ID'),
+
+            # The Key ID (visible in the "View Key Details" page).
+            "secret": "KEYID",
+
+             # Member ID/App ID Prefix -- you can find it below your name
+             # at the top right corner of the page, or it’s your App ID
+             # Prefix in your App ID.
+            "key": "MEMAPPIDPREFIX",
+
+            "settings": {
+                "hidden": True,
+                # The certificate you downloaded when generating the key.
+                "certificate_key": config('APPLE_CLIENT_SECRET')
+            }
+        }]
+    }
 }
 # ================================
 # Redis Configuration (commented out)
