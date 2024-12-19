@@ -27,7 +27,7 @@ ENCRYPTION_KEY = config('ENCRYPTION_KEY')
 DEBUG = config('DEBUG', default=False, cast=bool)
 
 # Hosts allowed to access the Django app (add your production domain here)
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = config("ALLOWED_HOSTS").split(",")
 
 # ================================
 # Installed Apps
@@ -65,7 +65,8 @@ INSTALLED_APPS = [
 # ================================
 
 MIDDLEWARE = [
-    # 'django.middleware.gzip.GZipMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+    'django.middleware.gzip.GZipMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'allauth.account.middleware.AccountMiddleware',  # Allauth middleware for user sessions
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -160,6 +161,8 @@ USE_TZ = True
 
 STATIC_URL = 'static/'  
 STATIC_ROOT = os_path.join(BASE_DIR, "static") 
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 MEDIA_URL = "/media/"  
 MEDIA_ROOT = os_path.join(BASE_DIR, "media")  
 
