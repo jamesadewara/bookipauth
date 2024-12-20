@@ -6,6 +6,8 @@ services:
     container_name: bookipauth_redis
     ports:
       - "6379:6379"
+    networks:
+      - bookipauth_network
 
   postgres:
     image: postgres:latest
@@ -19,6 +21,8 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - bookipauth_network
 
   django1:
     container_name: bookipauth_django1
