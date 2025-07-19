@@ -177,6 +177,3 @@ For production deployment, we recommend using Amazon Web Services (AWS) to ensur
 
 - Set up **CloudWatch** for monitoring logs and application performance.
 - Use **AWS** Auto Scaling to dynamically adjust the number of **EC2** instances based on traffic.
----
-
-*This setup provides a robust, scalable, and secure platform for your Bookstore API, ensuring optimal performance and reliability in both development and production environments.*
